@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Burnout Detector & Smart Study Assistant to help students manage stress and workload.">
+    <title>AI Burnout Detector & Smart Study Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="container glass-panel">
+        <header>
+            <h1>Burnout Detector <span>&</span> Study Assistant</h1>
+            <p>Analyze your current workload and get smart recommendations based on simple heuristics.</p>
+        </header>
+
+        <main>
+            <div class="input-section card">
+                <div class="form-group">
+                    <label for="sleepHours">🛌 Sleep (hours/night)</label>
+                    <input type="number" id="sleepHours" min="0" max="24" placeholder="e.g. 6" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stressLevel">🧠 Stress Level (1-10)</label>
+                    <input type="range" id="stressLevel" min="1" max="10" value="5" oninput="document.getElementById('stressValue').innerText = this.value">
+                    <span class="range-val"><span id="stressValue">5</span>/10</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="studyHours">🎯 Study Target (hours/day)</label>
+                    <input type="number" id="studyHours" min="0" max="24" placeholder="e.g. 8" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="daysLeft">⏳ Days to Deadline</label>
+                    <input type="number" id="daysLeft" min="0" placeholder="e.g. 5" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="apiKey">🔑 Gemini API Key (optional)</label>
+                    <input type="password" id="apiKey" placeholder="AIZA... (for smart AI insights)">
+                </div>
+
+                <button id="checkBtn" class="primary-btn">✨ Check Burnout Level</button>
+            </div>
+
+            <div id="outputSection" class="output-section hidden">
+                <div class="result-card card">
+                    <h2>Burnout Level: <span id="burnoutLevel" class="badge"></span></h2>
+                    <p id="motivationMessage" class="motivation-text"></p>
+                </div>
+                <div class="recommendations">
+                    <div class="card study-plan">
+                        <h3>📚 Suggested Study Plan</h3>
+                        <p id="studyPlanText"></p>
+                    </div>
+                    <div class="card health">
+                        <h3>🧘 Health Recommendations</h3>
+                        <p id="healthText"></p>
+                    </div>
+                    <div id="aiInsightCard" class="card ai-insight" style="display: none;">
+                        <h3>✨ Gemini AI Insight</h3>
+                        <p id="aiInsightText">Analyzing your data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-controls">
+                <button id="toggleHistoryBtn" class="secondary-btn">🕒 View History</button>
+            </div>
+
+            <div id="historySection" class="history-section hidden">
+                <h3>📅 Recent Logs</h3>
+                <div id="historyList" class="history-list">
+                    <!-- History items will be injected here -->
+                </div>
+                <button id="clearHistoryBtn" class="danger-btn">🗑️ Clear History</button>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

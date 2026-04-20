@@ -12,40 +12,45 @@
     <div class="background-animation"></div>
     <div class="container glass-panel">
         <header>
-            <h1>Burnout Detector <span>&</span> Study Assistant</h1>
-            <p>Analyze your current workload and get smart recommendations based on simple heuristics.</p>
+            <h1>Student Burnout <span>&</span> Study Optimizer</h1>
+            <div class="mission-statement">
+                <p><strong>⚠️ The Problem:</strong> Academic burnout and poor study management lead to severe stress, memory fatigue, and plummeting grades.</p>
+                <p><strong>💡 Our Mission:</strong> This assistant helps students detect burnout early and heavily optimizes study plans to reduce stress and maximize productivity.</p>
+            </div>
         </header>
 
         <main>
-            <div class="input-section card">
+            <form id="burnoutForm" class="input-section card">
                 <div class="form-group">
-                    <label for="sleepHours">🛌 Sleep (hours/night)</label>
-                    <input type="number" id="sleepHours" min="0" max="24" placeholder="e.g. 6" required>
+                    <label for="sleepHours"><span aria-hidden="true">🛌</span> Sleep (hours/night)</label>
+                    <input type="number" id="sleepHours" min="0" max="24" placeholder="e.g. 6" required aria-required="true">
                 </div>
                 
                 <div class="form-group">
-                    <label for="stressLevel">🧠 Stress Level (1-10)</label>
-                    <input type="range" id="stressLevel" min="1" max="10" value="5" oninput="document.getElementById('stressValue').innerText = this.value">
-                    <span class="range-val"><span id="stressValue">5</span>/10</span>
+                    <label for="stressLevel"><span aria-hidden="true">🧠</span> Stress Level (1-10)</label>
+                    <input type="range" id="stressLevel" min="1" max="10" value="5" aria-valuemin="1" aria-valuemax="10" oninput="document.getElementById('stressValue').innerText = this.value">
+                    <span class="range-val" aria-live="polite"><span id="stressValue">5</span>/10</span>
                 </div>
 
                 <div class="form-group">
-                    <label for="studyHours">🎯 Study Target (hours/day)</label>
-                    <input type="number" id="studyHours" min="0" max="24" placeholder="e.g. 8" required>
+                    <label for="studyHours"><span aria-hidden="true">🎯</span> Study Target (hours/day)</label>
+                    <input type="number" id="studyHours" min="0" max="24" placeholder="e.g. 8" required aria-required="true">
                 </div>
 
                 <div class="form-group">
-                    <label for="daysLeft">⏳ Days to Deadline</label>
-                    <input type="number" id="daysLeft" min="0" placeholder="e.g. 5" required>
+                    <label for="daysLeft"><span aria-hidden="true">⏳</span> Days to Deadline</label>
+                    <input type="number" id="daysLeft" min="0" placeholder="e.g. 5" required aria-required="true">
                 </div>
 
                 <div class="form-group">
-                    <label for="apiKey">🔑 Gemini API Key (optional)</label>
+                    <label for="apiKey"><span aria-hidden="true">🔑</span> Gemini API Key (optional)</label>
                     <input type="password" id="apiKey" placeholder="AIZA... (for smart AI insights)">
                 </div>
 
-                <button id="checkBtn" class="primary-btn">✨ Check Burnout Level</button>
-            </div>
+                <div id="errorAlert" role="alert" style="display: none; color: #fca5a5; background: rgba(239, 68, 68, 0.1); padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); margin-bottom: 1rem; font-size: 0.9rem; font-weight: 600;"></div>
+
+                <button type="submit" id="checkBtn" class="primary-btn"><span aria-hidden="true">✨</span> Check Burnout Level</button>
+            </form>
 
             <div id="outputSection" class="output-section hidden">
                 <div class="result-card card">
@@ -54,33 +59,35 @@
                 </div>
                 <div class="recommendations">
                     <div class="card study-plan">
-                        <h3>📚 Suggested Study Plan</h3>
-                        <p id="studyPlanText"></p>
+                        <h3><span aria-hidden="true">📚</span> Suggested Study Plan</h3>
+                        <p id="studyPlanText" aria-live="polite"></p>
                     </div>
                     <div class="card health">
-                        <h3>🧘 Health Recommendations</h3>
-                        <p id="healthText"></p>
+                        <h3><span aria-hidden="true">🧘</span> Health Recommendations</h3>
+                        <p id="healthText" aria-live="polite"></p>
                     </div>
                     <div id="aiInsightCard" class="card ai-insight" style="display: none;">
-                        <h3>✨ Gemini AI Insight</h3>
-                        <p id="aiInsightText">Analyzing your data...</p>
+                        <h3><span aria-hidden="true">✨</span> Gemini AI Insight</h3>
+                        <p id="aiInsightText" aria-live="polite">Analyzing your data...</p>
                     </div>
                 </div>
             </div>
 
-            <div class="history-controls">
-                <button id="toggleHistoryBtn" class="secondary-btn">🕒 View History</button>
+            <div class="history-controls" style="display: flex; gap: 1rem;">
+                <button id="toggleHistoryBtn" class="secondary-btn"><span aria-hidden="true">🕒</span> View History</button>
+                <button onclick="window.runBurnoutTests()" class="secondary-btn" style="flex: 0.5;"><span aria-hidden="true">🧪</span> Run Tests</button>
             </div>
 
             <div id="historySection" class="history-section hidden">
-                <h3>📅 Recent Logs</h3>
-                <div id="historyList" class="history-list">
+                <h3><span aria-hidden="true">📅</span> Recent Logs</h3>
+                <p id="dashboardTrend" style="margin-bottom: 1rem; font-size: 0.95rem; text-align: center; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 8px;"><em>Track another session to see your trend!</em></p>
+                <div id="historyList" class="history-list" role="list">
                     <!-- History items will be injected here -->
                 </div>
-                <button id="clearHistoryBtn" class="danger-btn">🗑️ Clear History</button>
+                <button id="clearHistoryBtn" class="danger-btn"><span aria-hidden="true">🗑️</span> Clear History</button>
             </div>
         </main>
     </div>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>

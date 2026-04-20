@@ -21,6 +21,11 @@
     padding: 0;
 }
 
+*:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-color);
@@ -92,10 +97,27 @@ h1 span {
     -webkit-text-fill-color: transparent;
 }
 
-header p {
+.mission-statement {
+    background: rgba(129, 140, 248, 0.08);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-top: 1.2rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.mission-statement p {
     color: var(--text-muted);
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.5;
+    margin: 0;
+}
+
+.mission-statement strong {
+    color: var(--text-main);
 }
 
 .card {

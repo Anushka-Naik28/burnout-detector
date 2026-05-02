@@ -112,15 +112,20 @@ function predict() {
         },
         body: JSON.stringify({ input: input })
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) {
+            throw new Error("Server error");
+        }
+        return res.json();
+    })
     .then(data => {
         const resultDiv = document.getElementById("result");
         resultDiv.innerText = "Result: " + data.result;
         resultDiv.classList.add("show");
     })
     .catch(error => {
-        console.log("ERROR:", error);
-        alert("Something went wrong!");
+        console.error(error);
+        alert("Error connecting to server");
     });
 }
 </script>

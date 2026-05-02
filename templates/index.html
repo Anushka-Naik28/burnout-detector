@@ -105,30 +105,34 @@
 function predict() {
     const input = document.getElementById("input").value;
 
-    fetch("https://web-production-d4d05.up.railway.app/predict", {
+    if (!input) {
+        alert("Please enter something!");
+        return;
+    }
+
+    fetch("/predict", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({ input: input })
     })
-    .then(res => {
-        if (!res.ok) {
+    .then(response => {
+        if (!response.ok) {
             throw new Error("Server error");
         }
-        return res.json();
+        return response.json();
     })
     .then(data => {
         const resultDiv = document.getElementById("result");
         resultDiv.innerText = "Result: " + data.result;
-        resultDiv.classList.add("show");
+        resultDiv.style.opacity = "1";
     })
     .catch(error => {
-        console.error(error);
-        alert("Error connecting to server");
+        console.error("Error:", error);
+        alert("Something went wrong. Check console.");
     });
 }
 </script>
-
 </body>
 </html>

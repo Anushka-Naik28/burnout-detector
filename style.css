@@ -1,3 +1,4 @@
+/* GLOBAL */
 body {
   margin: 0;
   font-family: "Inter", "Segoe UI", sans-serif;
@@ -38,8 +39,8 @@ body {
   opacity: 0.7;
 }
 
-.nav-item.active,
-.nav-item:hover {
+.nav-item:hover,
+.nav-item.active {
   background: rgba(255,255,255,0.06);
   opacity: 1;
 }
@@ -71,12 +72,12 @@ body {
 }
 
 /* GLASS CARD */
-.glass {
+.card {
+  padding: 18px;
+  border-radius: 14px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
   backdrop-filter: blur(12px);
-  border-radius: 14px;
-  padding: 18px;
 }
 
 /* INPUTS */
@@ -110,8 +111,9 @@ input {
 
 /* RESULT */
 .result-box {
-  min-height: 120px;
+  min-height: 80px;
   font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .muted {
@@ -125,10 +127,10 @@ input {
 }
 
 .chat-box {
-  height: 280px;
+  height: 260px;
   overflow-y: auto;
-  padding: 10px;
   font-size: 13px;
+  padding: 10px;
 }
 
 .chat-input {
@@ -147,4 +149,47 @@ input {
   border: none;
   background: #4f46e5;
   color: white;
+  cursor: pointer;
+}
+
+/* GAUGE */
+.gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.gauge {
+  width: 120px;
+  height: 120px;
+  transform: rotate(-90deg);
+}
+
+.bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.1);
+  stroke-width: 10;
+}
+
+.fill {
+  fill: none;
+  stroke: #4f46e5;
+  stroke-width: 10;
+  stroke-dasharray: 251;
+  stroke-dashoffset: 251;
+  transition: 0.8s ease;
+}
+
+.gauge-text {
+  margin-top: -85px;
+  font-size: 18px;
+}
+
+/* CHART SECTION */
+.chart-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 14px;
 }

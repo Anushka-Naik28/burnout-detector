@@ -1,69 +1,127 @@
-/* GLOBAL */
+/* =========================
+   GLOBAL BACKGROUND (PREMIUM)
+========================= */
+
 body {
   margin: 0;
   font-family: "Inter", "Segoe UI", sans-serif;
-  background: #0b1220;
   color: #e5e7eb;
+  overflow: hidden;
+  background: #050816;
 }
 
-/* APP LAYOUT */
+/* Animated gradient base */
+body::before {
+  content: "";
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 20% 20%, #4f46e5 0%, transparent 40%),
+              radial-gradient(circle at 80% 30%, #22c55e 0%, transparent 40%),
+              radial-gradient(circle at 50% 80%, #06b6d4 0%, transparent 40%);
+  animation: moveBg 12s infinite alternate ease-in-out;
+  opacity: 0.35;
+  z-index: -2;
+}
+
+@keyframes moveBg {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(-5%, -5%) scale(1.1); }
+}
+
+/* floating glow orbs */
+body::after {
+  content: "";
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: 0.15;
+  z-index: -1;
+}
+
+/* =========================
+   APP LAYOUT
+========================= */
+
 .app {
   display: flex;
   height: 100vh;
+  backdrop-filter: blur(10px);
 }
 
-/* SIDEBAR */
+/* =========================
+   SIDEBAR (GLASS PREMIUM)
+========================= */
+
 .sidebar {
   width: 240px;
-  background: #0f172a;
   padding: 20px;
-  border-right: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.03);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
 }
 
 .logo {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
+  background: linear-gradient(90deg, #4f46e5, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .tagline {
   font-size: 12px;
   opacity: 0.6;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
+/* nav animation */
 .nav-item {
   padding: 10px;
   margin: 6px 0;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: 0.3s ease;
   opacity: 0.7;
 }
 
-.nav-item:hover,
-.nav-item.active {
+.nav-item:hover {
+  transform: translateX(5px);
   background: rgba(255,255,255,0.06);
   opacity: 1;
 }
 
-/* MAIN */
+/* =========================
+   MAIN AREA
+========================= */
+
 .main {
   flex: 1;
   padding: 25px;
   overflow-y: auto;
 }
 
-/* HEADER */
 .header h1 {
-  margin: 0;
-  font-size: 22px;
+  font-size: 24px;
+  animation: fadeDown 0.8s ease;
 }
 
 .header p {
   opacity: 0.6;
-  margin-top: 5px;
 }
 
-/* GRID */
+/* fade animation */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   GRID CARDS
+========================= */
+
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -71,16 +129,30 @@ body {
   margin-top: 20px;
 }
 
-/* GLASS CARD */
 .card {
-  padding: 18px;
-  border-radius: 14px;
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px;
+  backdrop-filter: blur(20px);
+  transition: 0.3s ease;
+  animation: fadeUp 0.8s ease;
 }
 
-/* INPUTS */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================
+   INPUTS
+========================= */
+
 label {
   font-size: 12px;
   opacity: 0.7;
@@ -91,47 +163,86 @@ input {
   padding: 10px;
   margin: 6px 0 12px;
   border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05);
   color: white;
   outline: none;
+  transition: 0.3s;
 }
 
-/* BUTTON */
+input:focus {
+  border: 1px solid #4f46e5;
+  box-shadow: 0 0 10px rgba(79,70,229,0.4);
+}
+
+/* =========================
+   BUTTON (GLOW EFFECT)
+========================= */
+
 .primary-btn {
   width: 100%;
   padding: 12px;
   border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #4f46e5, #22c55e);
-  color: white;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 500;
+  color: white;
+  background: linear-gradient(135deg, #4f46e5, #22c55e);
+  transition: 0.3s;
 }
 
-/* RESULT */
+.primary-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(79,70,229,0.5);
+}
+
+/* =========================
+   RESULT CARD
+========================= */
+
 .result-box {
   min-height: 80px;
   font-size: 14px;
-  margin-bottom: 10px;
+  opacity: 0.9;
 }
 
-.muted {
-  opacity: 0.5;
-}
-
-/* CHAT */
-.ai-card {
-  display: flex;
-  flex-direction: column;
-}
+/* =========================
+   CHAT UI (AI FEEL)
+========================= */
 
 .chat-box {
   height: 260px;
   overflow-y: auto;
-  font-size: 13px;
   padding: 10px;
+  scroll-behavior: smooth;
 }
+
+.msg {
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 12px;
+  animation: pop 0.3s ease;
+}
+
+.user {
+  background: #4f46e5;
+  margin-left: auto;
+  width: fit-content;
+}
+
+.ai {
+  background: rgba(255,255,255,0.08);
+  width: fit-content;
+}
+
+@keyframes pop {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* =========================
+   CHAT INPUT
+========================= */
 
 .chat-input {
   display: flex;
@@ -150,46 +261,22 @@ input {
   background: #4f46e5;
   color: white;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-/* GAUGE */
-.gauge-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 15px;
+.chat-input button:hover {
+  transform: scale(1.1);
 }
 
-.gauge {
-  width: 120px;
-  height: 120px;
-  transform: rotate(-90deg);
+/* =========================
+   SCROLLBAR CLEAN UI
+========================= */
+
+::-webkit-scrollbar {
+  width: 6px;
 }
 
-.bg {
-  fill: none;
-  stroke: rgba(255,255,255,0.1);
-  stroke-width: 10;
-}
-
-.fill {
-  fill: none;
-  stroke: #4f46e5;
-  stroke-width: 10;
-  stroke-dasharray: 251;
-  stroke-dashoffset: 251;
-  transition: 0.8s ease;
-}
-
-.gauge-text {
-  margin-top: -85px;
-  font-size: 18px;
-}
-
-/* CHART SECTION */
-.chart-section {
-  margin-top: 20px;
-  padding: 20px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 14px;
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
 }

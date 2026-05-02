@@ -119,8 +119,8 @@ function predict() {
         resultDiv.classList.add("show");
     })
     .catch(error => {
-        alert("Error: " + error);
-        console.log(error);
+        console.log("ERROR:", error);
+        alert("Something went wrong!");
     });
 }
 </script>

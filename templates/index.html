@@ -1,93 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Burnout Detector & Smart Study Assistant to help students manage stress and workload.">
-    <title>AI Burnout Detector & Smart Study Assistant</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>Burnout Detector</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f7fa;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 400px;
+            margin: auto;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <div class="background-animation"></div>
-    <div class="container glass-panel">
-        <header>
-            <h1>Student Burnout <span>&</span> Study Optimizer</h1>
-            <div class="mission-statement">
-                <p><strong>⚠️ The Problem:</strong> Academic burnout and poor study management lead to severe stress, memory fatigue, and plummeting grades.</p>
-                <p><strong>💡 Our Mission:</strong> This assistant helps students detect burnout early and heavily optimizes study plans to reduce stress and maximize productivity.</p>
-            </div>
-        </header>
 
-        <main>
-            <form id="burnoutForm" class="input-section card">
-                <div class="form-group">
-                    <label for="sleepHours"><span aria-hidden="true">🛌</span> Sleep (hours/night)</label>
-                    <input type="number" id="sleepHours" min="0" max="24" placeholder="e.g. 6" required aria-required="true">
-                </div>
-                
-                <div class="form-group">
-                    <label for="stressLevel"><span aria-hidden="true">🧠</span> Stress Level (1-10)</label>
-                    <input type="range" id="stressLevel" min="1" max="10" value="5" aria-valuemin="1" aria-valuemax="10" oninput="document.getElementById('stressValue').innerText = this.value">
-                    <span class="range-val" aria-live="polite"><span id="stressValue">5</span>/10</span>
-                </div>
+<div class="container">
+    <h2>Burnout Detector</h2>
 
-                <div class="form-group">
-                    <label for="studyHours"><span aria-hidden="true">🎯</span> Study Target (hours/day)</label>
-                    <input type="number" id="studyHours" min="0" max="24" placeholder="e.g. 8" required aria-required="true">
-                </div>
+    <input type="text" id="input" placeholder="Enter how you feel..." />
+    <br>
 
-                <div class="form-group">
-                    <label for="daysLeft"><span aria-hidden="true">⏳</span> Days to Deadline</label>
-                    <input type="number" id="daysLeft" min="0" placeholder="e.g. 5" required aria-required="true">
-                </div>
+    <button onclick="predict()">Check Burnout</button>
 
-                <div class="form-group">
-                    <label for="apiKey"><span aria-hidden="true">🔑</span> Gemini API Key (optional)</label>
-                    <input type="password" id="apiKey" placeholder="AIZA... (for smart AI insights)">
-                </div>
+    <div id="result"></div>
+</div>
 
-                <div id="errorAlert" role="alert" style="display: none; color: #fca5a5; background: rgba(239, 68, 68, 0.1); padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); margin-bottom: 1rem; font-size: 0.9rem; font-weight: 600;"></div>
+<script>
+function predict() {
+    const input = document.getElementById("input").value;
 
-                <button type="submit" id="checkBtn" class="primary-btn"><span aria-hidden="true">✨</span> Check Burnout Level</button>
-            </form>
+    fetch("/predict", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ input: input })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("result").innerText = "Result: " + data.result;
+    });
+}
+</script>
 
-            <div id="outputSection" class="output-section hidden">
-                <div class="result-card card">
-                    <h2>Burnout Level: <span id="burnoutLevel" class="badge"></span></h2>
-                    <p id="motivationMessage" class="motivation-text"></p>
-                </div>
-                <div class="recommendations">
-                    <div class="card study-plan">
-                        <h3><span aria-hidden="true">📚</span> Suggested Study Plan</h3>
-                        <p id="studyPlanText" aria-live="polite"></p>
-                    </div>
-                    <div class="card health">
-                        <h3><span aria-hidden="true">🧘</span> Health Recommendations</h3>
-                        <p id="healthText" aria-live="polite"></p>
-                    </div>
-                    <div id="aiInsightCard" class="card ai-insight" style="display: none;">
-                        <h3><span aria-hidden="true">✨</span> Gemini AI Insight</h3>
-                        <p id="aiInsightText" aria-live="polite">Analyzing your data...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="history-controls" style="display: flex; gap: 1rem;">
-                <button id="toggleHistoryBtn" class="secondary-btn"><span aria-hidden="true">🕒</span> View History</button>
-                <button onclick="window.runBurnoutTests()" class="secondary-btn" style="flex: 0.5;"><span aria-hidden="true">🧪</span> Run Tests</button>
-            </div>
-
-            <div id="historySection" class="history-section hidden">
-                <h3><span aria-hidden="true">📅</span> Recent Logs</h3>
-                <p id="dashboardTrend" style="margin-bottom: 1rem; font-size: 0.95rem; text-align: center; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 8px;"><em>Track another session to see your trend!</em></p>
-                <div id="historyList" class="history-list" role="list">
-                    <!-- History items will be injected here -->
-                </div>
-                <button id="clearHistoryBtn" class="danger-btn"><span aria-hidden="true">🗑️</span> Clear History</button>
-            </div>
-        </main>
-    </div>
-    <script type="module" src="app.js"></script>
 </body>
 </html>

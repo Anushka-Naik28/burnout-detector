@@ -105,10 +105,8 @@
 function predict() {
     const input = document.getElementById("input").value;
 
-    if (!input) {
-        alert("Please enter something!");
-        return;
-    }
+    console.log("Button clicked");
+    console.log("Input:", input);
 
     fetch("/predict", {
         method: "POST",
@@ -118,19 +116,15 @@ function predict() {
         body: JSON.stringify({ input: input })
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error("Server error");
-        }
+        console.log("Response received:", response);
         return response.json();
     })
     .then(data => {
-        const resultDiv = document.getElementById("result");
-        resultDiv.innerText = "Result: " + data.result;
-        resultDiv.style.opacity = "1";
+        console.log("Data:", data);
+        document.getElementById("result").innerText = "Result: " + data.result;
     })
     .catch(error => {
-        console.error("Error:", error);
-        alert("Something went wrong. Check console.");
+        console.error("ERROR:", error);
     });
 }
 </script>

@@ -117,6 +117,10 @@ function predict() {
         const resultDiv = document.getElementById("result");
         resultDiv.innerText = "Result: " + data.result;
         resultDiv.classList.add("show");
+    })
+    .catch(error => {
+        alert("Error: " + error);
+        console.log(error);
     });
 }
 </script>

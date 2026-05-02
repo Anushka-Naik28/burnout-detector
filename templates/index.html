@@ -105,7 +105,7 @@
 function predict() {
     const input = document.getElementById("input").value;
 
-    fetch("/predict", {
+    fetch("https://web-production-d4d05.up.railway.app/predict", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

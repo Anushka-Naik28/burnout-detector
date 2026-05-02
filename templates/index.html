@@ -1,22 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Burnout Detector</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Chart.js for future graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
 <div class="app">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">🧠 Burnout AI</div>
-    <p class="tagline">Smart Study Wellness System</p>
+    <div class="tagline">Smart Study Assistant</div>
 
-    <div class="nav-item active">📊 Analysis</div>
-    <div class="nav-item">🤖 AI Assistant</div>
-    <div class="nav-item">📈 History</div>
+    <div class="nav-item active">📊 Dashboard</div>
+    <div class="nav-item">🤖 AI Coach</div>
+    <div class="nav-item">📈 Trends</div>
   </aside>
 
-  <!-- MAIN -->
+  <!-- MAIN AREA -->
   <main class="main">
 
-    <!-- TOP HEADER -->
+    <!-- HEADER -->
     <header class="header">
-      <h1>Burnout Analysis Dashboard</h1>
-      <p>Track, analyze and optimize your study performance</p>
+      <h1>Burnout Intelligence Dashboard</h1>
+      <p>Analyze, predict and optimize your study health</p>
     </header>
 
     <!-- GRID -->
@@ -30,17 +45,17 @@
         <label>Sleep Hours</label>
         <input id="sleep" type="number" placeholder="e.g. 6.5">
 
-        <label>Stress Level</label>
-        <input id="stress" type="number" placeholder="0 - 10">
+        <label>Stress Level (0-10)</label>
+        <input id="stress" type="number" placeholder="e.g. 7">
 
         <label>Study Hours</label>
         <input id="study" type="number" placeholder="e.g. 8">
 
         <label>Deadline (days left)</label>
-        <input id="deadline" type="number">
+        <input id="deadline" type="number" placeholder="e.g. 3">
 
-        <label>Gemini API Key</label>
-        <input id="apiKey" type="password" placeholder="Optional">
+        <label>Gemini API Key (optional)</label>
+        <input id="apiKey" type="password" placeholder="AIza...">
 
         <button class="primary-btn" onclick="analyze()">
           Run AI Analysis
@@ -51,15 +66,24 @@
       <!-- RESULT CARD -->
       <div class="card glass">
 
-        <h2>Burnout Intelligence</h2>
+        <h2>Burnout Score</h2>
 
         <div id="resultCard" class="result-box">
-          <p class="muted">Awaiting analysis...</p>
+          <p class="muted">Enter your data to analyze burnout level</p>
+        </div>
+
+        <!-- GAUGE -->
+        <div class="gauge-container">
+          <svg class="gauge" viewBox="0 0 100 100">
+            <circle class="bg" cx="50" cy="50" r="40"></circle>
+            <circle id="gaugeFill" class="fill" cx="50" cy="50" r="40"></circle>
+          </svg>
+          <div id="gaugeText" class="gauge-text">0%</div>
         </div>
 
       </div>
 
-      <!-- AI PANEL -->
+      <!-- AI CHAT -->
       <div class="card glass ai-card">
 
         <h2>AI Study Coach</h2>
@@ -75,6 +99,14 @@
 
     </section>
 
+    <!-- CHART -->
+    <section class="chart-section">
+      <canvas id="burnoutChart"></canvas>
+    </section>
+
   </main>
 
 </div>
+
+</body>
+</html>

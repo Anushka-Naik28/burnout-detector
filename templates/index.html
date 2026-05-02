@@ -1,50 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Burnout Detector</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f5f7fa;
-            text-align: center;
-            padding: 50px;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 400px;
-            margin: auto;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        }
-        input {
-            width: 90%;
-            padding: 10px;
-            margin-top: 10px;
-        }
-        button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Burnout Detector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+
+    body {
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        padding: 40px;
+        border-radius: 20px;
+        width: 380px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        margin-top: 10px;
+        font-size: 14px;
+        transition: 0.3s;
+    }
+
+    input:focus {
+        transform: scale(1.05);
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 12px;
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        background: #00c6ff;
+        background: linear-gradient(to right, #00c6ff, #0072ff);
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    #result {
+        margin-top: 20px;
+        font-size: 18px;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .show {
+        opacity: 1;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(20px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+</style>
 </head>
+
 <body>
 
-<div class="container">
-    <h2>Burnout Detector</h2>
+<div class="card">
+    <h2>🧠 Burnout Detector</h2>
 
-    <input type="text" id="input" placeholder="Enter how you feel..." />
-    <br>
+    <input type="text" id="input" placeholder="How are you feeling today?" />
 
-    <button onclick="predict()">Check Burnout</button>
+    <button onclick="predict()">Analyze</button>
 
     <div id="result"></div>
 </div>
@@ -62,7 +114,9 @@ function predict() {
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("result").innerText = "Result: " + data.result;
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerText = "Result: " + data.result;
+        resultDiv.classList.add("show");
     });
 }
 </script>

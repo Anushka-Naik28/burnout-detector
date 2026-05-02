@@ -1,37 +1,80 @@
-<div class="app-container">
+<div class="app">
 
-  <!-- LEFT INPUT PANEL -->
-  <div class="panel input-panel">
-    <h2>🧠 Burnout Inputs</h2>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">🧠 Burnout AI</div>
+    <p class="tagline">Smart Study Wellness System</p>
 
-    <input id="sleep" placeholder="Sleep hours" type="number">
-    <input id="stress" placeholder="Stress (0-10)" type="number">
-    <input id="study" placeholder="Study hours" type="number">
-    <input id="deadline" placeholder="Days to deadline" type="number">
+    <div class="nav-item active">📊 Analysis</div>
+    <div class="nav-item">🤖 AI Assistant</div>
+    <div class="nav-item">📈 History</div>
+  </aside>
 
-    <input id="apiKey" placeholder="Gemini API Key (optional)" type="password">
+  <!-- MAIN -->
+  <main class="main">
 
-    <button onclick="analyze()">Analyze Burnout</button>
-  </div>
+    <!-- TOP HEADER -->
+    <header class="header">
+      <h1>Burnout Analysis Dashboard</h1>
+      <p>Track, analyze and optimize your study performance</p>
+    </header>
 
-  <!-- CENTER DASHBOARD -->
-  <div class="panel dashboard-panel">
-    <h2>📊 Burnout Score</h2>
-    <div id="resultCard" class="glass-card">
-      <p>Enter data to analyze your burnout level</p>
-    </div>
+    <!-- GRID -->
+    <section class="grid">
 
-    <div id="history" class="history-box"></div>
-  </div>
+      <!-- INPUT CARD -->
+      <div class="card glass">
 
-  <!-- RIGHT AI PANEL -->
-  <div class="panel ai-panel">
-    <h2>🤖 AI Assistant</h2>
+        <h2>Input Metrics</h2>
 
-    <div id="chat" class="chat-box"></div>
+        <label>Sleep Hours</label>
+        <input id="sleep" type="number" placeholder="e.g. 6.5">
 
-    <input id="userMsg" placeholder="Ask AI about your study plan...">
-    <button onclick="sendMsg()">Send</button>
-  </div>
+        <label>Stress Level</label>
+        <input id="stress" type="number" placeholder="0 - 10">
+
+        <label>Study Hours</label>
+        <input id="study" type="number" placeholder="e.g. 8">
+
+        <label>Deadline (days left)</label>
+        <input id="deadline" type="number">
+
+        <label>Gemini API Key</label>
+        <input id="apiKey" type="password" placeholder="Optional">
+
+        <button class="primary-btn" onclick="analyze()">
+          Run AI Analysis
+        </button>
+
+      </div>
+
+      <!-- RESULT CARD -->
+      <div class="card glass">
+
+        <h2>Burnout Intelligence</h2>
+
+        <div id="resultCard" class="result-box">
+          <p class="muted">Awaiting analysis...</p>
+        </div>
+
+      </div>
+
+      <!-- AI PANEL -->
+      <div class="card glass ai-card">
+
+        <h2>AI Study Coach</h2>
+
+        <div id="chat" class="chat-box"></div>
+
+        <div class="chat-input">
+          <input id="userMsg" placeholder="Ask your AI coach..." />
+          <button onclick="sendMsg()">➤</button>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
 
 </div>

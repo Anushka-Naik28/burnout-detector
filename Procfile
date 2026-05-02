@@ -1,1 +1,1 @@
-web: gunicorn burnout-detector.wsgi
+web: gunicorn app:app

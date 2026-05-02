@@ -1,132 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Burnout Detector</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="app-container">
 
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Poppins", sans-serif;
-    }
+  <!-- LEFT INPUT PANEL -->
+  <div class="panel input-panel">
+    <h2>🧠 Burnout Inputs</h2>
 
-    body {
-        height: 100vh;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    <input id="sleep" placeholder="Sleep hours" type="number">
+    <input id="stress" placeholder="Stress (0-10)" type="number">
+    <input id="study" placeholder="Study hours" type="number">
+    <input id="deadline" placeholder="Days to deadline" type="number">
 
-    .card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(15px);
-        padding: 40px;
-        border-radius: 20px;
-        width: 380px;
-        text-align: center;
-        color: white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        animation: fadeIn 1s ease-in-out;
-    }
+    <input id="apiKey" placeholder="Gemini API Key (optional)" type="password">
 
-    h2 {
-        margin-bottom: 20px;
-    }
+    <button onclick="analyze()">Analyze Burnout</button>
+  </div>
 
-    input {
-        width: 100%;
-        padding: 12px;
-        border-radius: 10px;
-        border: none;
-        outline: none;
-        margin-top: 10px;
-        font-size: 14px;
-        transition: 0.3s;
-    }
+  <!-- CENTER DASHBOARD -->
+  <div class="panel dashboard-panel">
+    <h2>📊 Burnout Score</h2>
+    <div id="resultCard" class="glass-card">
+      <p>Enter data to analyze your burnout level</p>
+    </div>
 
-    input:focus {
-        transform: scale(1.05);
-    }
+    <div id="history" class="history-box"></div>
+  </div>
 
-    button {
-        margin-top: 20px;
-        padding: 12px;
-        width: 100%;
-        border: none;
-        border-radius: 10px;
-        background: #00c6ff;
-        background: linear-gradient(to right, #00c6ff, #0072ff);
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+  <!-- RIGHT AI PANEL -->
+  <div class="panel ai-panel">
+    <h2>🤖 AI Assistant</h2>
 
-    button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
+    <div id="chat" class="chat-box"></div>
 
-    #result {
-        margin-top: 20px;
-        font-size: 18px;
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out;
-    }
+    <input id="userMsg" placeholder="Ask AI about your study plan...">
+    <button onclick="sendMsg()">Send</button>
+  </div>
 
-    .show {
-        opacity: 1;
-    }
-
-    @keyframes fadeIn {
-        from {opacity: 0; transform: translateY(20px);}
-        to {opacity: 1; transform: translateY(0);}
-    }
-</style>
-</head>
-
-<body>
-
-<div class="card">
-    <h2>🧠 Burnout Detector</h2>
-
-    <input type="text" id="input" placeholder="How are you feeling today?" />
-
-    <button onclick="predict()">Analyze</button>
-
-    <div id="result"></div>
 </div>
-
-<script>
-function predict() {
-    const input = document.getElementById("input").value;
-
-    console.log("Button clicked");
-    console.log("Input:", input);
-
-    fetch("/predict", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ input: input })
-    })
-    .then(response => {
-        console.log("Response received:", response);
-        return response.json();
-    })
-    .then(data => {
-        console.log("Data:", data);
-        document.getElementById("result").innerText = "Result: " + data.result;
-    })
-    .catch(error => {
-        console.error("ERROR:", error);
-    });
-}
-</script>
-</body>
-</html>

@@ -79,6 +79,12 @@ export async function getAiInsights(sleep, stress, study, cleanLevel, apiKey) {
         });
 
         if (!response.ok) {
+            try {
+                const errData = await response.json();
+                if (errData.error && errData.error.message) {
+                    throw new Error(errData.error.message);
+                }
+            } catch (e) {}
             throw new Error(`API Error: ${response.status}`);
         }
 
@@ -98,7 +104,7 @@ export async function getAiInsights(sleep, stress, study, cleanLevel, apiKey) {
         
     } catch (error) {
         console.error("Gemini API Error:", error);
-        throw new Error("Couldn't load AI insight. Please check your API key or network connection.");
+        throw new Error(error.message || "Couldn't load AI insight. Please check your API key or network connection.");
     }
 }
 
@@ -125,16 +131,11 @@ export async function getChatResponse(history, userMessage, sleep, stress, study
     // Map history to Gemini API format
     const contents = [];
     
-    // Inject system instructions into the very first message or as a system prompt
-    // A robust way for Gemini without SystemInstruction is prepending to the first message
-    history.forEach((msg, idx) => {
-        let text = msg.text;
-        if (idx === 0) {
-            text = `[SYSTEM CONTEXT: ${systemPrompt}]\n\nUser: ${text}`;
-        }
+    // Convert history
+    history.forEach(msg => {
         contents.push({
             role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: text }]
+            parts: [{ text: msg.text }]
         });
     });
 
@@ -143,6 +144,11 @@ export async function getChatResponse(history, userMessage, sleep, stress, study
         role: 'user',
         parts: [{ text: userMessage }]
     });
+
+    // Inject system instructions into the very first user message of the conversation
+    if (contents.length > 0) {
+        contents[0].parts[0].text = `[SYSTEM CONTEXT: ${systemPrompt}]\n\nUser: ${contents[0].parts[0].text}`;
+    }
 
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -157,6 +163,12 @@ export async function getChatResponse(history, userMessage, sleep, stress, study
         });
 
         if (!response.ok) {
+            try {
+                const errData = await response.json();
+                if (errData.error && errData.error.message) {
+                    throw new Error(errData.error.message);
+                }
+            } catch (e) {}
             throw new Error(`API Error: ${response.status}`);
         }
 
@@ -170,6 +182,6 @@ export async function getChatResponse(history, userMessage, sleep, stress, study
         return "I'm having trouble thinking of a response right now. Try again!";
     } catch (error) {
         console.error("Gemini Chat Error:", error);
-        throw new Error("Failed to get response from AI Coach. Check connection or API key.");
+        throw new Error(error.message || "Failed to get response from AI Coach. Check connection or API key.");
     }
 }

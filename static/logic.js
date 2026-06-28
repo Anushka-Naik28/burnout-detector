@@ -67,7 +67,7 @@ export async function getAiInsights(sleep, stress, study, cleanLevel, apiKey) {
     const prompt = `Act as an expert academic advisor. The student user has an academic stress level of ${stress}/10, slept only ${sleep} hours last night, and plans to formally study ${study} hours today. Their calculated student burnout level is ${cleanLevel}. Provide highly specific, actionable advice to help them optimize their study plan and prevent academic burnout. Do not give generic health tips; tie everything directly to improving grades safely. Keep it under 3 concise sentences.`;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -151,7 +151,7 @@ export async function getChatResponse(history, userMessage, sleep, stress, study
     }
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

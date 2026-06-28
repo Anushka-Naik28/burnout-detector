@@ -1,7 +1,7 @@
 /**
  * logic.js
  * Contains the core business logic, API calls, and algorithmic calculations for the 
- * Burnout Detector application, successfully separated from the DOM UI manipulation.
+ * Burnout Detector application, separated from DOM manipulation.
  */
 
 /**
@@ -25,7 +25,8 @@ export function escapeHTML(str) {
 }
 
 /**
- * Calculates the total burnout score and risk level based on rigorous heuristics.
+ * Calculates the total burnout score and risk level based on lifestyle heuristics.
+ * Returns a score between 0 and 10, and a base level of 'Low', 'Medium', or 'High'.
  * 
  * @param {number} sleep - Hours of sleep obtained last night (0-24)
  * @param {number} stress - Self-reported stress level (scaled 1-10)
@@ -98,5 +99,77 @@ export async function getAiInsights(sleep, stress, study, cleanLevel, apiKey) {
     } catch (error) {
         console.error("Gemini API Error:", error);
         throw new Error("Couldn't load AI insight. Please check your API key or network connection.");
+    }
+}
+
+/**
+ * Initiates a context-aware chat conversation with Google Gemini.
+ * Pre-injects the student's metrics to make recommendations tailored.
+ *
+ * @param {Array} history - Array of { role: 'user'|'model', text: string }
+ * @param {string} userMessage - The latest user message
+ * @param {number} sleep - Sleep hours
+ * @param {number} stress - Stress level
+ * @param {number} study - Study hours
+ * @param {string} cleanLevel - Burnout level
+ * @param {string} apiKey - Gemini API Key
+ * @returns {Promise<string>} The AI response
+ */
+export async function getChatResponse(history, userMessage, sleep, stress, study, cleanLevel, apiKey) {
+    if (!apiKey) {
+        throw new Error("API Key is required to chat with the AI Study Coach.");
+    }
+
+    const systemPrompt = `You are a supportive, warm, and highly professional academic wellness coach. The student has shared their metrics:\n- Sleep: ${sleep} hours last night\n- Stress level: ${stress}/10 today\n- Study target: ${study} hours today\n- Calculated Burnout Risk: ${cleanLevel}.\n\nAlways address them with empathy. Maintain context of their metrics when recommending study/wellness actions. Answer briefly and conversationally (under 3 sentences).`;
+
+    // Map history to Gemini API format
+    const contents = [];
+    
+    // Inject system instructions into the very first message or as a system prompt
+    // A robust way for Gemini without SystemInstruction is prepending to the first message
+    history.forEach((msg, idx) => {
+        let text = msg.text;
+        if (idx === 0) {
+            text = `[SYSTEM CONTEXT: ${systemPrompt}]\n\nUser: ${text}`;
+        }
+        contents.push({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: text }]
+        });
+    });
+
+    // Append current user message
+    contents.push({
+        role: 'user',
+        parts: [{ text: userMessage }]
+    });
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: contents,
+                generationConfig: { temperature: 0.7 }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates.length > 0) {
+            const reply = data.candidates[0].content.parts[0].text;
+            return escapeHTML(reply).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        } 
+        
+        return "I'm having trouble thinking of a response right now. Try again!";
+    } catch (error) {
+        console.error("Gemini Chat Error:", error);
+        throw new Error("Failed to get response from AI Coach. Check connection or API key.");
     }
 }

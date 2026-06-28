@@ -1,1415 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Burnout Detector — AI Study Assistant</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0a0f;
-    --bg2: #111118;
-    --bg3: #18181f;
-    --surface: #1e1e28;
-    --surface2: #25252f;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --text: #f0f0f5;
-    --text2: #9898aa;
-    --text3: #5f5f70;
-    --accent: #7c6aff;
-    --accent2: #a78bfa;
-    --accent-glow: rgba(124,106,255,0.2);
-    --low: #22c55e;
-    --low-bg: rgba(34,197,94,0.1);
-    --low-border: rgba(34,197,94,0.25);
-    --med: #f59e0b;
-    --med-bg: rgba(245,158,11,0.1);
-    --med-border: rgba(245,158,11,0.25);
-    --high: #ef4444;
-    --high-bg: rgba(239,68,68,0.1);
-    --high-border: rgba(239,68,68,0.25);
-    --radius: 16px;
-    --radius-sm: 10px;
-    --radius-xs: 6px;
-    --font: 'DM Sans', sans-serif;
-    --font-display: 'Syne', sans-serif;
-    --transition: 0.2s ease;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
-
-  /* Ambient background */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -30%;
-    left: -10%;
-    width: 60%;
-    height: 60%;
-    background: radial-gradient(ellipse, rgba(124,106,255,0.07) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  body::after {
-    content: '';
-    position: fixed;
-    bottom: -20%;
-    right: -10%;
-    width: 50%;
-    height: 50%;
-    background: radial-gradient(ellipse, rgba(167,139,250,0.05) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .wrapper {
-    position: relative;
-    z-index: 1;
-    max-width: 820px;
-    margin: 0 auto;
-    padding: 48px 24px 80px;
-  }
-
-  /* ── Header ── */
-  .header {
-    text-align: center;
-    margin-bottom: 52px;
-    animation: fadeUp 0.6s ease both;
-  }
-
-  .header-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(124,106,255,0.12);
-    border: 1px solid rgba(124,106,255,0.25);
-    border-radius: 999px;
-    padding: 6px 16px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--accent2);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin-bottom: 24px;
-  }
-
-  .header-badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    background: var(--accent2);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(36px, 6vw, 58px);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    margin-bottom: 16px;
-    background: linear-gradient(135deg, #fff 0%, #a78bfa 60%, #7c6aff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .header p {
-    font-size: 16px;
-    color: var(--text2);
-    max-width: 480px;
-    margin: 0 auto;
-    font-weight: 300;
-  }
-
-  /* ── Cards ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px 32px;
-    margin-bottom: 16px;
-    transition: border-color var(--transition);
-  }
-  .card:hover { border-color: var(--border2); }
-
-  .card-title {
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text3);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card-title::before {
-    content: '';
-    display: block;
-    width: 16px; height: 1px;
-    background: var(--text3);
-  }
-
-  /* ── Inputs ── */
-  .inputs-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  @media (max-width: 560px) { .inputs-grid { grid-template-columns: 1fr; } }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .val-badge {
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    min-width: 48px;
-    text-align: right;
-    transition: color var(--transition);
-  }
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 999px;
-    outline: none;
-    cursor: pointer;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 3px solid var(--surface);
-    box-shadow: 0 0 0 0 var(--accent-glow);
-    transition: box-shadow 0.2s;
-    cursor: pointer;
-  }
-  input[type="range"]:hover::-webkit-slider-thumb,
-  input[type="range"]:focus::-webkit-slider-thumb {
-    box-shadow: 0 0 0 6px var(--accent-glow);
-  }
-  input[type="range"].stress::-webkit-slider-thumb { background: var(--high); }
-  input[type="range"].stress { --accent-glow: rgba(239,68,68,0.2); }
-  input[type="range"].stress:hover::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(239,68,68,0.2); }
-
-  input[type="number"],
-  input[type="text"],
-  input[type="password"],
-  select {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 15px;
-    outline: none;
-    transition: border-color var(--transition), box-shadow var(--transition);
-    -webkit-appearance: none;
-  }
-  input[type="number"]:focus,
-  input[type="text"]:focus,
-  input[type="password"]:focus,
-  select:focus {
-    border-color: rgba(124,106,255,0.5);
-    box-shadow: 0 0 0 3px rgba(124,106,255,0.1);
-  }
-  select option { background: var(--bg3); }
-
-  .field-hint {
-    font-size: 11px;
-    color: var(--text3);
-    margin-top: -4px;
-  }
-
-  /* ── API key section ── */
-  .api-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-  }
-  .api-row input { flex: 1; }
-  .api-toggle {
-    padding: 12px 14px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text2);
-    cursor: pointer;
-    font-size: 14px;
-    white-space: nowrap;
-    transition: all var(--transition);
-  }
-  .api-toggle:hover { border-color: var(--border2); color: var(--text); }
-
-  /* ── CTA Button ── */
-  .btn-primary {
-    width: 100%;
-    padding: 16px 32px;
-    background: var(--accent);
-    border: none;
-    border-radius: var(--radius-sm);
-    color: #fff;
-    font-family: var(--font-display);
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.25s;
-    margin-top: 8px;
-  }
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(124,106,255,0.35); }
-  .btn-primary:hover::before { opacity: 1; }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  .btn-secondary {
-    padding: 11px 22px;
-    background: transparent;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    color: var(--text2);
-    font-family: var(--font);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition);
-  }
-  .btn-secondary:hover { background: var(--surface2); color: var(--text); border-color: rgba(255,255,255,0.18); }
-
-  /* ── Loading Spinner ── */
-  .spinner {
-    display: inline-block;
-    width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 8px;
-  }
-
-  /* ── Results Section ── */
-  #results { display: none; }
-  #results.show { display: block; }
-
-  .results-header {
-    text-align: center;
-    padding: 40px 32px 32px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.4s ease both;
-  }
-
-  .results-header::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    border-radius: var(--radius) var(--radius) 0 0;
-  }
-  .results-header.low::before { background: linear-gradient(90deg, var(--low), transparent); }
-  .results-header.med::before { background: linear-gradient(90deg, var(--med), transparent); }
-  .results-header.high::before { background: linear-gradient(90deg, var(--high), transparent); }
-
-  .risk-score-ring {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 120px; height: 120px;
-    margin: 0 auto 20px;
-  }
-
-  .risk-score-ring svg {
-    position: absolute;
-    top: 0; left: 0;
-    transform: rotate(-90deg);
-  }
-
-  .risk-score-inner {
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .risk-score-num {
-    font-family: var(--font-display);
-    font-size: 32px;
-    font-weight: 800;
-    display: block;
-    line-height: 1;
-  }
-
-  .risk-score-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text3);
-    display: block;
-    margin-top: 2px;
-  }
-
-  .risk-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 20px;
-    border-radius: 999px;
-    font-family: var(--font-display);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    border: 1px solid;
-    margin-bottom: 12px;
-  }
-  .risk-badge.low { background: var(--low-bg); color: var(--low); border-color: var(--low-border); }
-  .risk-badge.med { background: var(--med-bg); color: var(--med); border-color: var(--med-border); }
-  .risk-badge.high { background: var(--high-bg); color: var(--high); border-color: var(--high-border); }
-  .risk-badge::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-
-  .risk-subtitle {
-    font-size: 14px;
-    color: var(--text2);
-    font-weight: 300;
-  }
-
-  /* ── Stats Row ── */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-    animation: fadeUp 0.4s 0.1s ease both;
-  }
-  @media (max-width: 560px) { .stats-row { grid-template-columns: 1fr 1fr; } }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-    text-align: center;
-  }
-
-  .stat-icon {
-    font-size: 20px;
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  .stat-val {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 700;
-    display: block;
-    color: var(--text);
-  }
-
-  .stat-lbl {
-    font-size: 11px;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    display: block;
-    margin-top: 2px;
-  }
-
-  /* ── Recs Grid ── */
-  .recs-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
-    animation: fadeUp 0.4s 0.15s ease both;
-  }
-  @media (max-width: 560px) { .recs-grid { grid-template-columns: 1fr; } }
-
-  .rec-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-  }
-
-  .rec-card-title {
-    font-family: var(--font-display);
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .rec-icon {
-    width: 32px; height: 32px;
-    border-radius: var(--radius-xs);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  .rec-icon.purple { background: rgba(124,106,255,0.15); }
-  .rec-icon.green { background: rgba(34,197,94,0.12); }
-  .rec-icon.amber { background: rgba(245,158,11,0.12); }
-  .rec-icon.pink { background: rgba(236,72,153,0.12); }
-
-  .rec-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 9px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    color: var(--text2);
-    line-height: 1.5;
-  }
-  .rec-item:last-child { border-bottom: none; padding-bottom: 0; }
-
-  .rec-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent2);
-    flex-shrink: 0;
-    margin-top: 6px;
-  }
-  .rec-dot.green { background: var(--low); }
-  .rec-dot.amber { background: var(--med); }
-
-  /* ── Pomodoro Plan ── */
-  .pomodoro-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    flex-wrap: wrap;
-  }
-
-  .pom-block {
-    height: 8px;
-    border-radius: 4px;
-    flex: 1;
-    min-width: 24px;
-  }
-  .pom-block.work { background: var(--accent); }
-  .pom-block.break-short { background: var(--low); opacity: 0.7; }
-  .pom-block.break-long { background: var(--med); opacity: 0.7; }
-
-  .pom-legend {
-    display: flex;
-    gap: 14px;
-    margin-top: 10px;
-    font-size: 11px;
-    color: var(--text3);
-  }
-  .pom-legend span { display: flex; align-items: center; gap: 5px; }
-  .pom-legend span::before { content: ''; display: block; width: 10px; height: 4px; border-radius: 2px; }
-  .pom-legend .l-work::before { background: var(--accent); }
-  .pom-legend .l-short::before { background: var(--low); }
-  .pom-legend .l-long::before { background: var(--med); }
-
-  /* ── AI Insight ── */
-  .ai-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 28px 32px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.4s 0.2s ease both;
-  }
-
-  .ai-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px; height: 100%;
-    background: linear-gradient(180deg, var(--accent), var(--accent2));
-    border-radius: 0 0 0 var(--radius);
-  }
-
-  .ai-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
-
-  .ai-orb {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    animation: orb-pulse 3s ease infinite;
-  }
-
-  @keyframes orb-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(124,106,255,0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(124,106,255,0); }
-  }
-
-  .ai-title {
-    font-family: var(--font-display);
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-  }
-  .ai-sub {
-    font-size: 12px;
-    color: var(--text3);
-  }
-
-  #ai-content {
-    font-size: 15px;
-    line-height: 1.75;
-    color: var(--text2);
-    white-space: pre-wrap;
-  }
-
-  #ai-content.loading {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--text3);
-    font-size: 14px;
-  }
-
-  .typing-dots span {
-    display: inline-block;
-    width: 6px; height: 6px;
-    background: var(--accent2);
-    border-radius: 50%;
-    animation: typing 1.2s infinite;
-  }
-  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-  /* ── History Section ── */
-  .history-section {
-    margin-top: 8px;
-    animation: fadeUp 0.4s 0.25s ease both;
-  }
-
-  .history-toggle-btn {
-    width: 100%;
-    padding: 14px 24px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text2);
-    font-family: var(--font);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all var(--transition);
-  }
-  .history-toggle-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
-
-  #history-panel { display: none; margin-top: 12px; }
-  #history-panel.show { display: block; }
-
-  .history-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 14px 20px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-size: 13px;
-    transition: border-color var(--transition);
-    animation: fadeUp 0.3s ease both;
-  }
-  .history-item:hover { border-color: var(--border2); }
-
-  .history-date { color: var(--text3); min-width: 80px; }
-  .history-score { font-family: var(--font-display); font-weight: 700; min-width: 36px; }
-  .history-vals { color: var(--text2); flex: 1; }
-  .history-badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 999px;
-    border: 1px solid;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .history-badge.low { background: var(--low-bg); color: var(--low); border-color: var(--low-border); }
-  .history-badge.med { background: var(--med-bg); color: var(--med); border-color: var(--med-border); }
-  .history-badge.high { background: var(--high-bg); color: var(--high); border-color: var(--high-border); }
-
-  .empty-history {
-    text-align: center;
-    padding: 32px;
-    color: var(--text3);
-    font-size: 14px;
-  }
-
-  /* ── Progress Track Bar ── */
-  .progress-track {
-    width: 100%;
-    height: 6px;
-    background: var(--surface2);
-    border-radius: 999px;
-    overflow: hidden;
-    margin-top: 8px;
-  }
-  .progress-fill {
-    height: 100%;
-    border-radius: 999px;
-    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* ── Range track coloring trick ── */
-  .range-wrap { position: relative; }
-
-  /* ── Animations ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-  @keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30% { transform: translateY(-6px); opacity: 1; }
-  }
-  @keyframes scoreReveal {
-    from { stroke-dashoffset: 283; }
-    to { stroke-dashoffset: var(--target-offset); }
-  }
-
-  .input-section { animation: fadeUp 0.5s 0.1s ease both; }
-  .ai-key-section { animation: fadeUp 0.5s 0.2s ease both; }
-  .cta-section { animation: fadeUp 0.5s 0.3s ease both; }
-
-  /* Divider */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 8px 0;
-  }
-
-  .section-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text3);
-    margin-bottom: 16px;
-  }
-
-  /* Notification toast */
-  .toast {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    padding: 14px 20px;
-    font-size: 14px;
-    color: var(--text);
-    z-index: 999;
-    transform: translateY(20px);
-    opacity: 0;
-    transition: all 0.3s ease;
-    max-width: 300px;
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-
-  /* Micro anim on score cards */
-  @keyframes countUp {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  .count-anim { animation: countUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-
-  /* History chart mini */
-  .mini-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
-    height: 40px;
-    margin-top: 12px;
-  }
-  .mini-bar {
-    flex: 1;
-    border-radius: 3px 3px 0 0;
-    transition: height 0.5s ease;
-    cursor: pointer;
-    position: relative;
-  }
-  .mini-bar:hover::after {
-    content: attr(data-tip);
-    position: absolute;
-    bottom: calc(100% + 4px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 11px;
-    color: var(--text);
-    white-space: nowrap;
-    z-index: 10;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Burnout Detector — Smart Study Assistant</title>
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+
 <div class="wrapper">
 
   <!-- Header -->
-  <div class="header">
-    <div class="header-badge">AI Wellness Assistant</div>
-    <h1>Burnout<br>Detector</h1>
-    <p>Analyze your academic workload and receive personalized wellness guidance before hitting the wall.</p>
-  </div>
+  <header class="header">
+    <div class="header-badge">AI Academic Wellness Advisor</div>
+    <h1>Burnout Intelligence</h1>
+    <p>Analyze your daily study load, track physiological stress indicators, and converse with your AI Wellness Coach to optimize performance safely.</p>
+  </header>
 
-  <!-- Input Card -->
-  <div class="card input-section">
-    <div class="card-title">Your Daily Data</div>
+  <!-- Error Alert -->
+  <div class="error-alert" id="errorAlert"></div>
 
-    <div class="inputs-grid">
+  <!-- Main Grid Dashboard -->
+  <div class="dashboard-grid">
 
-      <!-- Sleep -->
-      <div class="field">
-        <label>
-          Sleep last night
-          <span class="val-badge" id="sleep-val">7<span style="font-size:13px;font-weight:400;color:var(--text3)">h</span></span>
-        </label>
-        <input type="range" id="sleep" min="2" max="12" value="7" step="0.5">
-        <div class="progress-track">
-          <div class="progress-fill" id="sleep-fill" style="width:50%; background: var(--accent);"></div>
+    <!-- LEFT COLUMN: Input form -->
+    <div class="column-left">
+      <form id="burnoutForm">
+        
+        <!-- Metrics Input Card -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-title">Your Daily Data</div>
+          
+          <div class="inputs-grid">
+            
+            <!-- Sleep Slider -->
+            <div class="field">
+              <label for="sleep">
+                Sleep Last Night
+                <span class="val-badge" id="sleep-val">7h</span>
+              </label>
+              <input type="range" id="sleep" min="2" max="12" value="7" step="0.5">
+              <div class="progress-track">
+                <div class="progress-fill" id="sleep-fill" style="width: 50%; background: var(--accent);"></div>
+              </div>
+              <p class="field-hint">Optimal target: 7–9 sleep hours</p>
+            </div>
+            
+            <!-- Stress Slider -->
+            <div class="field">
+              <label for="stress">
+                Stress Level
+                <span class="val-badge" id="stress-val">5/10</span>
+              </label>
+              <input type="range" class="stress-slider" id="stress" min="1" max="10" value="5">
+              <div class="progress-track">
+                <div class="progress-fill" id="stress-fill" style="width: 44%; background: var(--high-risk);"></div>
+              </div>
+              <p class="field-hint">Self-reported cognitive load / anxiety level</p>
+            </div>
+            
+            <!-- Study Hours input -->
+            <div class="field">
+              <label for="study">Goal Study Hours Today</label>
+              <input type="number" id="study" min="0" max="24" value="6" placeholder="e.g. 6" required>
+              <p class="field-hint">Intended hours of study today</p>
+            </div>
+            
+            <!-- Deadline dropdown -->
+            <div class="field">
+              <label for="deadline">Next Exam/Deadline In</label>
+              <select id="deadline">
+                <option value="1">Today (less than 24h)</option>
+                <option value="2">Tomorrow</option>
+                <option value="3" selected>2–3 days away</option>
+                <option value="5">4–5 days away</option>
+                <option value="7">This week</option>
+                <option value="14">Next week</option>
+                <option value="30">More than 2 weeks</option>
+              </select>
+              <p class="field-hint">Urgency level updates scoring thresholds</p>
+            </div>
+            
+          </div>
         </div>
-        <p class="field-hint">Optimal range: 7–9 hours</p>
-      </div>
 
-      <!-- Stress -->
-      <div class="field">
-        <label>
-          Stress level
-          <span class="val-badge" id="stress-val">5<span style="font-size:13px;font-weight:400;color:var(--text3)">/10</span></span>
-        </label>
-        <input type="range" class="stress" id="stress" min="1" max="10" value="5">
-        <div class="progress-track">
-          <div class="progress-fill" id="stress-fill" style="width:44%; background: var(--high);"></div>
+        <!-- Optional API Key Card -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-title">AI Configuration (Optional)</div>
+          <div class="field">
+            <label for="api-key">Gemini API Key</label>
+            <div class="api-row">
+              <input type="password" id="api-key" placeholder="AIzaSy..." autocomplete="off">
+              <button type="button" class="api-toggle" id="key-toggle">Show</button>
+            </div>
+            <p class="field-hint">Enables personalized generative advice & active AI Coach chat. Key is processed entirely client-side.</p>
+          </div>
         </div>
-        <p class="field-hint">How overwhelmed do you feel today?</p>
-      </div>
 
-      <!-- Study hours -->
-      <div class="field">
-        <label>Goal study hours today</label>
-        <input type="number" id="study" min="1" max="18" value="6" placeholder="e.g. 6">
-        <p class="field-hint">How many hours are you planning?</p>
-      </div>
+        <!-- Submit Button -->
+        <button type="submit" class="btn-primary" id="check-btn">
+          Analyze My Burnout Risk
+        </button>
 
-      <!-- Deadline -->
-      <div class="field">
-        <label>Next deadline in</label>
-        <select id="deadline">
-          <option value="1">Today (less than 24h)</option>
-          <option value="2">Tomorrow</option>
-          <option value="3" selected>2–3 days away</option>
-          <option value="5">4–5 days away</option>
-          <option value="7">This week</option>
-          <option value="14">Next week</option>
-          <option value="30">More than 2 weeks</option>
-        </select>
-        <p class="field-hint">Urgency affects your risk score</p>
-      </div>
-
+      </form>
     </div>
-  </div>
 
-  <!-- AI Key Card -->
-  <div class="card ai-key-section">
-    <div class="card-title">AI Insights (Optional)</div>
-    <div class="field">
-      <label>Claude API Key — for personalized AI analysis</label>
-      <div class="api-row">
-        <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off">
-        <button class="api-toggle" id="key-toggle" onclick="toggleKey()">Show</button>
-      </div>
-      <p class="field-hint">Your key is never stored or transmitted beyond this page. Leave empty for generic advice.</p>
-    </div>
-  </div>
+    <!-- RIGHT COLUMN: Output Dashboard -->
+    <div class="column-right">
+      <div id="outputSection">
+        
+        <!-- Score Card -->
+        <div class="results-header" id="results-header">
+          <div class="gauge-svg-wrap">
+            <svg viewBox="0 0 100 100">
+              <circle class="bg-circle" cx="50" cy="50" r="45"></circle>
+              <circle class="fill-circle" id="score-arc" cx="50" cy="50" r="45"></circle>
+            </svg>
+            <div class="gauge-center-text">
+              <span class="score-num" id="score-num">0</span>
+              <span class="score-lbl">Score</span>
+            </div>
+          </div>
+          <div class="risk-badge" id="risk-badge">—</div>
+          <p class="risk-subtitle" id="risk-subtitle">Gathering indicators…</p>
+        </div>
 
-  <!-- CTA -->
-  <div class="cta-section">
-    <button class="btn-primary" id="check-btn" onclick="runCheck()">
-      Analyze My Burnout Risk
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon">🌙</span>
+            <span class="stat-val" id="stat-sleep">—</span>
+            <span class="stat-lbl">Hours Slept</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">⚡</span>
+            <span class="stat-val" id="stat-stress">—</span>
+            <span class="stat-lbl">Stress Level</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">📚</span>
+            <span class="stat-val" id="stat-study">—</span>
+            <span class="stat-lbl">Recommended Study</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">🍅</span>
+            <span class="stat-val" id="stat-pom">—</span>
+            <span class="stat-lbl">Pomodoros</span>
+          </div>
+        </div>
+
+        <!-- Action Plan Grid -->
+        <div class="recs-grid">
+          
+          <!-- Study Plan Card -->
+          <div class="card" style="padding: 24px;">
+            <div class="rec-card-title">
+              <div class="rec-icon purple">📋</div>
+              Study Tactics
+            </div>
+            <div id="study-plan-items"></div>
+            <div class="pomodoro-timeline" id="pom-row"></div>
+            <div class="pomodoro-legend">
+              <span class="lbl-work">Work</span>
+              <span class="lbl-short">Short Break</span>
+              <span class="lbl-long">Long Break</span>
+            </div>
+          </div>
+          
+          <!-- Health Recs Card -->
+          <div class="card" style="padding: 24px;">
+            <div class="rec-card-title">
+              <div class="rec-icon green">🌿</div>
+              Wellness Interventions
+            </div>
+            <div id="health-items"></div>
+          </div>
+          
+        </div>
+
+        <!-- AI Coach & Active Chat Card -->
+        <div class="card ai-card">
+          <div class="ai-header">
+            <div class="ai-orb">✦</div>
+            <div class="ai-meta">
+              <div class="ai-name">AI Study Coach & Advisor</div>
+              <div class="ai-sub">Powered by Gemini 1.5 Flash</div>
+            </div>
+          </div>
+          
+          <!-- Generative intervention text -->
+          <div class="ai-insight-text" id="ai-insight-text">
+            No indicators submitted yet.
+          </div>
+          
+          <!-- Conversation Interface -->
+          <div class="chat-container">
+            <div class="chat-box" id="chatBox">
+              <div class="chat-message ai">
+                Hello! I am your AI Study Coach. Submit your wellness check to start a personalized conversation about your workload, scheduling, and stress relief.
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <input type="text" id="chatInput" placeholder="Ask your AI coach a question..." autocomplete="off">
+              <button type="button" class="chat-send-btn" id="chatSendBtn">➤</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /outputSection -->
+    </div><!-- /column-right -->
+
+  </div><!-- /dashboard-grid -->
+
+  <!-- Historical Analytics Dashboard -->
+  <div class="card history-card" style="margin-top: 24px;">
+    <button type="button" class="history-toggle-btn" id="toggleHistoryBtn">
+      <span id="history-btn-text">View History logs</span>
+      <span id="history-chevron">▾</span>
     </button>
+    <div id="historyPanel">
+      <div class="history-panel-header">
+        <span class="card-title" style="margin-bottom:0;">Workload Log History</span>
+        <button type="button" class="btn-secondary" id="clearHistoryBtn" style="padding:6px 14px; font-size:12px;">Clear History Logs</button>
+      </div>
+      <div class="dashboard-trend" id="dashboardTrend"></div>
+      <div class="mini-chart-container" id="mini-chart-wrap"></div>
+      <div class="history-list" id="history-list"></div>
+    </div>
   </div>
-
-  <!-- Results -->
-  <div id="results" style="margin-top:32px;">
-
-    <!-- Risk Header -->
-    <div class="results-header" id="results-header">
-      <div class="risk-score-ring">
-        <svg width="120" height="120" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="50" fill="none" stroke="var(--surface2)" stroke-width="8"/>
-          <circle id="score-arc" cx="60" cy="60" r="45" fill="none"
-            stroke="var(--accent)" stroke-width="6" stroke-linecap="round"
-            stroke-dasharray="283" stroke-dashoffset="283"
-            style="transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1), stroke 0.4s"/>
-        </svg>
-        <div class="risk-score-inner">
-          <span class="risk-score-num" id="score-num">0</span>
-          <span class="risk-score-label">score</span>
-        </div>
-      </div>
-      <div class="risk-badge" id="risk-badge">—</div>
-      <p class="risk-subtitle" id="risk-subtitle">Analyzing your data…</p>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <span class="stat-icon">🌙</span>
-        <span class="stat-val count-anim" id="stat-sleep">—</span>
-        <span class="stat-lbl">Hours Slept</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-icon">⚡</span>
-        <span class="stat-val count-anim" id="stat-stress">—</span>
-        <span class="stat-lbl">Stress /10</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-icon">📚</span>
-        <span class="stat-val count-anim" id="stat-study">—</span>
-        <span class="stat-lbl">Safe Hours</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-icon">🍅</span>
-        <span class="stat-val count-anim" id="stat-pom">—</span>
-        <span class="stat-lbl">Pomodoros</span>
-      </div>
-    </div>
-
-    <!-- Recs -->
-    <div class="recs-grid">
-
-      <div class="rec-card">
-        <div class="rec-card-title">
-          <div class="rec-icon purple">📋</div>
-          Study Plan
-        </div>
-        <div id="study-plan-items"></div>
-        <div class="pomodoro-row" id="pom-row"></div>
-        <div class="pom-legend">
-          <span class="l-work">Work</span>
-          <span class="l-short">Short break</span>
-          <span class="l-long">Long break</span>
-        </div>
-      </div>
-
-      <div class="rec-card">
-        <div class="rec-card-title">
-          <div class="rec-icon green">🌿</div>
-          Health Recs
-        </div>
-        <div id="health-items"></div>
-      </div>
-
-    </div>
-
-    <!-- AI Card -->
-    <div class="ai-card" id="ai-section">
-      <div class="ai-header">
-        <div class="ai-orb">✦</div>
-        <div>
-          <div class="ai-title">AI Wellness Advisor</div>
-          <div class="ai-sub">Personalized analysis by Claude</div>
-        </div>
-      </div>
-      <div id="ai-content">
-        <div class="loading">
-          <div class="typing-dots"><span></span><span></span><span></span></div>
-          Generating your personalized insights…
-        </div>
-      </div>
-    </div>
-
-    <!-- History -->
-    <div class="history-section">
-      <button class="history-toggle-btn" onclick="toggleHistory()">
-        <span id="history-btn-text">View History</span>
-        <span id="history-chevron" style="transition:transform 0.3s">▾</span>
-      </button>
-      <div id="history-panel">
-        <div style="margin: 12px 0 8px; display:flex; justify-content:space-between; align-items:center;">
-          <span class="section-label">Last 10 sessions</span>
-          <button class="btn-secondary" onclick="clearHistory()" style="padding:6px 14px;font-size:12px;">Clear All</button>
-        </div>
-        <div id="mini-chart-wrap"></div>
-        <div id="history-list"></div>
-      </div>
-    </div>
-
-  </div><!-- /results -->
 
 </div><!-- /wrapper -->
 
-<!-- Toast -->
+<!-- Dynamic Notification Toast -->
 <div class="toast" id="toast"></div>
 
-<script>
-// ── State ──
-let historyOpen = false;
-let lastData = null;
+<!-- JavaScript Module -->
+<script type="module" src="/static/app.js"></script>
 
-// ── Range inputs ──
-const sleepEl = document.getElementById('sleep');
-const stressEl = document.getElementById('stress');
-const sleepVal = document.getElementById('sleep-val');
-const stressVal = document.getElementById('stress-val');
-const sleepFill = document.getElementById('sleep-fill');
-const stressFill = document.getElementById('stress-fill');
-
-sleepEl.addEventListener('input', () => {
-  const v = parseFloat(sleepEl.value);
-  sleepVal.innerHTML = `${v}<span style="font-size:13px;font-weight:400;color:var(--text3)">h</span>`;
-  const pct = ((v - 2) / 10) * 100;
-  sleepFill.style.width = pct + '%';
-  const color = v >= 7 ? 'var(--low)' : v >= 5 ? 'var(--med)' : 'var(--high)';
-  sleepFill.style.background = color;
-});
-
-stressEl.addEventListener('input', () => {
-  const v = parseInt(stressEl.value);
-  stressVal.innerHTML = `${v}<span style="font-size:13px;font-weight:400;color:var(--text3)">/10</span>`;
-  const pct = ((v - 1) / 9) * 100;
-  stressFill.style.width = pct + '%';
-  const color = v <= 3 ? 'var(--low)' : v <= 6 ? 'var(--med)' : 'var(--high)';
-  stressFill.style.background = color;
-});
-
-// ── Key toggle ──
-function toggleKey() {
-  const inp = document.getElementById('api-key');
-  const btn = document.getElementById('key-toggle');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Hide'; }
-  else { inp.type = 'password'; btn.textContent = 'Show'; }
-}
-
-// ── Burnout logic ──
-function calcScore(sleep, stress, study, deadline) {
-  let score = 0;
-  // Sleep (max 35)
-  if (sleep < 4) score += 35;
-  else if (sleep < 5) score += 28;
-  else if (sleep < 6) score += 20;
-  else if (sleep < 7) score += 12;
-  else if (sleep < 8) score += 4;
-  else score += 0;
-
-  // Stress (max 30)
-  score += Math.round((stress / 10) * 30);
-
-  // Study hours (max 20)
-  if (study > 14) score += 20;
-  else if (study > 10) score += 15;
-  else if (study > 8) score += 10;
-  else if (study > 6) score += 5;
-  else score += 2;
-
-  // Deadline (max 15)
-  if (deadline <= 1) score += 15;
-  else if (deadline <= 2) score += 12;
-  else if (deadline <= 3) score += 8;
-  else if (deadline <= 5) score += 5;
-  else if (deadline <= 7) score += 2;
-  else score += 0;
-
-  return Math.min(100, score);
-}
-
-function getTier(score) {
-  if (score < 35) return 'low';
-  if (score < 65) return 'med';
-  return 'high';
-}
-
-function getTierLabel(tier) {
-  return { low: 'Low Risk', med: 'Medium Risk', high: 'High Risk' }[tier];
-}
-
-function getTierSubtitle(tier, score) {
-  if (tier === 'low') return `Score ${score} — You're managing well. Keep your current rhythm.`;
-  if (tier === 'med') return `Score ${score} — Warning signs present. Adjust your schedule now.`;
-  return `Score ${score} — Critical zone. Immediate rest and recovery needed.`;
-}
-
-function getSafeStudyHours(tier, study) {
-  if (tier === 'low') return Math.min(study, 8);
-  if (tier === 'med') return Math.min(study, 5);
-  return Math.min(study, 3);
-}
-
-function getPomodoros(safeHours) {
-  return Math.round((safeHours * 60) / 30);
-}
-
-function getPomPlan(tier) {
-  if (tier === 'low') return { work: 25, breakShort: 5, breakLong: 20, cycle: 4 };
-  if (tier === 'med') return { work: 20, breakShort: 7, breakLong: 25, cycle: 3 };
-  return { work: 15, breakShort: 10, breakLong: 30, cycle: 2 };
-}
-
-function getStudyPlan(tier, safeHours, pomPlan) {
-  return [
-    { text: `Max study time: ${safeHours}h today`, dot: '' },
-    { text: `${pomPlan.work}-min work blocks, ${pomPlan.breakShort}-min short breaks`, dot: '' },
-    { text: `${pomPlan.breakLong}-min long break after every ${pomPlan.cycle} sessions`, dot: '' },
-    { text: tier === 'high' ? 'Avoid new material — review only' : 'Prioritize highest-impact tasks first', dot: '' },
-  ];
-}
-
-function getHealthRecs(tier, sleep) {
-  const base = [
-    'Drink at least 2.5L of water throughout the day',
-    'Take a 10-min walk between study sessions',
-    'Avoid screens 45 min before bed',
-  ];
-  if (tier === 'low') return [...base, 'Maintain your sleep schedule — it\'s working'];
-  if (tier === 'med') return [
-    `Aim for at least ${Math.max(7, sleep + 1)}h sleep tonight`,
-    'Eat a proper meal — no skipping',
-    ...base.slice(0, 2),
-    'Try 5 minutes of deep breathing before starting',
-  ];
-  return [
-    `PRIORITY: Sleep ${Math.max(8, sleep + 2)}h tonight — non-negotiable`,
-    'Do not study past 10 PM under any circumstance',
-    'Eat something nutritious every 3–4 hours',
-    'Tell someone how you\'re feeling — don\'t isolate',
-    'Consider asking for a deadline extension',
-  ];
-}
-
-// ── Render ──
-function renderScore(score, tier) {
-  const scoreArc = document.getElementById('score-arc');
-  const circumference = 2 * Math.PI * 45;
-  const offset = circumference - (score / 100) * circumference;
-  const color = tier === 'low' ? 'var(--low)' : tier === 'med' ? 'var(--med)' : 'var(--high)';
-  scoreArc.style.stroke = color;
-  setTimeout(() => { scoreArc.style.strokeDashoffset = offset; }, 50);
-
-  // Animate number
-  const numEl = document.getElementById('score-num');
-  let current = 0;
-  const duration = 1000;
-  const start = performance.now();
-  function step(now) {
-    const t = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - t, 3);
-    numEl.textContent = Math.round(ease * score);
-    if (t < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-function renderBadge(tier) {
-  const badge = document.getElementById('risk-badge');
-  badge.className = 'risk-badge ' + tier;
-  badge.innerHTML = `<span></span>${getTierLabel(tier)}`;
-  const header = document.getElementById('results-header');
-  header.className = 'results-header ' + tier;
-}
-
-function renderPomRow(pomPlan, numSessions) {
-  const row = document.getElementById('pom-row');
-  row.innerHTML = '';
-  for (let i = 0; i < numSessions; i++) {
-    const w = document.createElement('div');
-    w.className = 'pom-block work';
-    row.appendChild(w);
-    if ((i + 1) % pomPlan.cycle === 0) {
-      const b = document.createElement('div');
-      b.className = 'pom-block break-long';
-      b.style.flex = '0.6';
-      row.appendChild(b);
-    } else if (i < numSessions - 1) {
-      const b = document.createElement('div');
-      b.className = 'pom-block break-short';
-      b.style.flex = '0.3';
-      row.appendChild(b);
-    }
-  }
-}
-
-function renderRecs(items, containerId, dotClass) {
-  const el = document.getElementById(containerId);
-  el.innerHTML = items.map(item => `
-    <div class="rec-item">
-      <div class="rec-dot ${dotClass || ''}"></div>
-      <span>${item.text || item}</span>
-    </div>
-  `).join('');
-}
-
-// ── Main check ──
-async function runCheck() {
-  const btn = document.getElementById('check-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Analyzing…';
-
-  const sleep = parseFloat(sleepEl.value);
-  const stress = parseInt(stressEl.value);
-  const study = parseInt(document.getElementById('study').value) || 6;
-  const deadline = parseInt(document.getElementById('deadline').value);
-  const apiKey = document.getElementById('api-key').value.trim();
-
-  const score = calcScore(sleep, stress, study, deadline);
-  const tier = getTier(score);
-  const safeHours = getSafeStudyHours(tier, study);
-  const pomPlan = getPomPlan(tier);
-  const numPoms = getPomodoros(safeHours);
-  const studyPlan = getStudyPlan(tier, safeHours, pomPlan);
-  const healthRecs = getHealthRecs(tier, sleep);
-
-  lastData = { sleep, stress, study, deadline, score, tier, safeHours, numPoms };
-
-  // Show results
-  const resultsEl = document.getElementById('results');
-  resultsEl.classList.add('show');
-  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  // Render
-  setTimeout(() => renderScore(score, tier), 100);
-  renderBadge(tier);
-  document.getElementById('risk-subtitle').textContent = getTierSubtitle(tier, score);
-
-  // Stats
-  document.getElementById('stat-sleep').textContent = sleep + 'h';
-  document.getElementById('stat-stress').textContent = stress + '/10';
-  document.getElementById('stat-study').textContent = safeHours + 'h';
-  document.getElementById('stat-pom').textContent = numPoms;
-
-  // Plan items
-  renderRecs(studyPlan, 'study-plan-items', 'amber');
-  renderPomRow(pomPlan, Math.min(numPoms, 8));
-  renderRecs(healthRecs, 'health-items', 'green');
-
-  // AI
-  await runAI(sleep, stress, study, deadline, score, tier, safeHours, apiKey);
-
-  // Save history
-  saveHistory(sleep, stress, study, deadline, score, tier);
-
-  btn.disabled = false;
-  btn.innerHTML = 'Re-analyze';
-  showToast('Analysis complete ✓');
-}
-
-// ── AI ──
-async function runAI(sleep, stress, study, deadline, score, tier, safeHours, apiKey) {
-  const aiContent = document.getElementById('ai-content');
-  aiContent.className = 'loading';
-  aiContent.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div> Generating your personalized insights…`;
-
-  if (!apiKey) {
-    await new Promise(r => setTimeout(r, 800));
-    aiContent.className = '';
-    aiContent.textContent = getFallbackAdvice(tier, sleep, stress, study, safeHours);
-    return;
-  }
-
-  const deadlineDays = document.getElementById('deadline').options[document.getElementById('deadline').selectedIndex].text;
-  const prompt = `You are a compassionate academic wellness coach. A student just checked in with the following data:
-
-• Sleep last night: ${sleep} hours
-• Stress level: ${stress}/10
-• Planned study hours today: ${study}h
-• Next deadline: ${deadlineDays}
-• Burnout Risk Score: ${score}/100 (${getTierLabel(tier)})
-• Recommended safe study hours: ${safeHours}h
-
-Write a warm, personalized 3-paragraph wellness message for them. Be specific, empathetic, and practical. Reference their actual numbers. Include one concrete technique or mindset shift that directly addresses their biggest risk factor. End with a single motivating sentence. Keep tone human, not clinical.`;
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 600,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.error?.message || 'API error');
-    }
-
-    const data = await resp.json();
-    const text = data.content?.[0]?.text || '';
-    aiContent.className = '';
-    aiContent.textContent = text;
-  } catch (e) {
-    aiContent.className = '';
-    if (e.message.includes('API key') || e.message.includes('auth') || e.message.includes('401')) {
-      aiContent.innerHTML = `<span style="color:var(--high)">⚠ Invalid API key.</span> Showing generic advice instead:\n\n${getFallbackAdvice(tier, sleep, stress, study, safeHours)}`;
-    } else {
-      aiContent.textContent = getFallbackAdvice(tier, sleep, stress, study, safeHours);
-    }
-  }
-}
-
-function getFallbackAdvice(tier, sleep, stress, study, safeHours) {
-  if (tier === 'low') {
-    return `You're in a healthy rhythm right now. With ${sleep}h of sleep and moderate stress, your body and mind are well-positioned for learning. The key now is consistency — protect your sleep schedule like a meeting you can't miss.\n\nFor today's ${safeHours}h of study, try time-blocking with intent. Choose your three most important tasks first, work through them using focused Pomodoro sessions, and genuinely disconnect during breaks. Quality of focus beats quantity of hours every time.\n\nYou're building real momentum. Keep this up — small daily habits compound into extraordinary results.`;
-  }
-  if (tier === 'med') {
-    return `Your data shows some warning signs worth paying attention to. ${sleep}h of sleep combined with a stress level of ${stress}/10 means your cognitive reserves are running lower than they should be. This is the moment to course-correct before things escalate.\n\nToday, cap your study at ${safeHours}h maximum — not as a punishment, but as a strategic investment. Tired studying produces half the retention at twice the mental cost. During breaks, step outside, move your body, and eat something real.\n\nYou're not behind — you're recalibrating. One good night of sleep tonight will do more for your performance than two extra hours of exhausted studying ever could.`;
-  }
-  return `Your scores are signaling a genuine burnout risk that needs immediate attention. ${sleep}h of sleep with stress at ${stress}/10 is a combination that significantly impairs memory consolidation, decision-making, and emotional regulation — the exact things you need most right now.\n\nThe most important thing you can do today is not study more — it's sleep more. Cap everything at ${safeHours}h of gentle review, tell someone close to you how you're really feeling, and ask yourself honestly whether a deadline extension might be worth requesting.\n\nBurnout is not weakness; it's a physiological state. Treating it with rest is the most productive thing you can do, and tomorrow you will be genuinely stronger for it.`;
-}
-
-// ── History ──
-function saveHistory(sleep, stress, study, deadline, score, tier) {
-  const raw = localStorage.getItem('burnout_history');
-  let history = raw ? JSON.parse(raw) : [];
-  history.unshift({
-    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    sleep, stress, study, score, tier,
-    ts: Date.now()
-  });
-  if (history.length > 10) history = history.slice(0, 10);
-  localStorage.setItem('burnout_history', JSON.stringify(history));
-}
-
-function loadHistory() {
-  const raw = localStorage.getItem('burnout_history');
-  return raw ? JSON.parse(raw) : [];
-}
-
-function clearHistory() {
-  localStorage.removeItem('burnout_history');
-  renderHistory();
-  showToast('History cleared');
-}
-
-function toggleHistory() {
-  historyOpen = !historyOpen;
-  const panel = document.getElementById('history-panel');
-  const chevron = document.getElementById('history-chevron');
-  const btnText = document.getElementById('history-btn-text');
-  panel.classList.toggle('show', historyOpen);
-  chevron.style.transform = historyOpen ? 'rotate(180deg)' : '';
-  btnText.textContent = historyOpen ? 'Hide History' : 'View History';
-  if (historyOpen) renderHistory();
-}
-
-function renderHistory() {
-  const history = loadHistory();
-  const list = document.getElementById('history-list');
-  const chartWrap = document.getElementById('mini-chart-wrap');
-
-  if (history.length === 0) {
-    list.innerHTML = '<div class="empty-history">No sessions recorded yet. Run your first check above.</div>';
-    chartWrap.innerHTML = '';
-    return;
-  }
-
-  // Mini chart
-  const maxScore = 100;
-  chartWrap.innerHTML = `
-    <div style="margin-bottom:8px;">
-      <span class="section-label">Score trend</span>
-    </div>
-    <div class="mini-chart">
-      ${[...history].reverse().map((h, i) => {
-        const heightPct = (h.score / maxScore) * 100;
-        const color = h.tier === 'low' ? 'var(--low)' : h.tier === 'med' ? 'var(--med)' : 'var(--high)';
-        return `<div class="mini-bar" style="height:${Math.max(8, heightPct)}%;background:${color};opacity:0.7;" data-tip="${h.date}: ${h.score}"></div>`;
-      }).join('')}
-    </div>
-    <div style="margin-top:4px; display:flex; justify-content:space-between; font-size:10px; color:var(--text3);">
-      <span>${[...history].reverse()[0]?.date}</span>
-      <span>${history[0]?.date}</span>
-    </div>
-  `;
-
-  list.innerHTML = history.map((h, i) => `
-    <div class="history-item" style="animation-delay:${i * 0.04}s">
-      <span class="history-date">${h.date}</span>
-      <span class="history-score" style="color:${h.tier==='low'?'var(--low)':h.tier==='med'?'var(--med)':'var(--high)'}">${h.score}</span>
-      <span class="history-vals">Sleep ${h.sleep}h · Stress ${h.stress}/10 · ${h.study}h planned</span>
-      <span class="history-badge ${h.tier}">${getTierLabel(h.tier)}</span>
-    </div>
-  `).join('');
-}
-
-// ── Toast ──
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-</script>
 </body>
 </html>

@@ -45,3 +45,7 @@ This project runs entirely client-side, enabling robust, fast, and privacy-consc
 - **Push Notifications**: Integrating a service worker or Web Notifications API to send hydration or screen-break reminders during long study sessions.
 - **Backend Infrastructure**: Shifting `localStorage` to a Firebase or Supabase cloud backend for seamless cross-device synchronization and secure API key vaulting.
 - **Calendar Integrations**: Directly syncing with Google Calendar/Apple Calendar to intelligently read and manipulate study blocks dynamically.
+
+
+
+Demo Link: https://burnout-detector.onrender.com
